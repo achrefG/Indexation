@@ -51,12 +51,14 @@ public class Traitement {
 		this.images_all = images_all;
 	}
 
-	public void getNbImages() {
+	public ArrayList<Multimedia> getNbImages() {
+		ArrayList<Multimedia> nB_images = new ArrayList<Multimedia>() ;
 		for (Multimedia image: images_all) {
 			if(image.isNb()) {
-				System.out.println(image.getID());
+				nB_images.add(image);
 			}
 		}
+		return nB_images;
 	};
 	
 	public ArrayList<Multimedia> getSimilarImagesByCaracterstics(Multimedia image_input){
@@ -68,8 +70,7 @@ public class Traitement {
 			
 			double battachariaDistance = ((battachariaDistanceRed + battachariaDistanceGreen+ battachariaDistanceBlue )/3)*1000;
 			int battachariaDistanceInt =(int) Math.round(battachariaDistance);
-			System.out.println(image_input.getID() +":"+image.getID() +" distance :"+battachariaDistanceInt );
-			
+		
 			image.setDistance(battachariaDistanceInt);
 			
 			SimilarImages.add(image);
@@ -133,8 +134,6 @@ public class Traitement {
         	bcCoeff = bcCoeff.add(bc,MathContext.DECIMAL128);
         	
         }
-       
-        System.out.println("bc coeff" + bcCoeff);
         return bcCoeff;
     }
 }
