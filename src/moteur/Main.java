@@ -21,7 +21,7 @@ public class Main {
     	ArrayList<Multimedia> all_images=  connexionDB.createMultimedia();
     	Traitement traitement = new Traitement(all_images);
     	ArrayList<Multimedia> nbImages =  traitement.getNbImages();
-        ArrayList<Multimedia> similarImages= traitement.getSimilarImagesByCaracterstics(all_images.get(10));
+        ArrayList<Multimedia> similarImages= traitement.getSimilarImagesByCaracterstics(all_images.get(10), 2, 8);
         
         for (int i = 0; i < 10; i++) {
 			System.out.println("Image similaire a l'image 11 :"+similarImages.get(i).getID()+" | distance :"+similarImages.get(i).getDistance());
