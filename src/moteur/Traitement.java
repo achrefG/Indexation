@@ -60,7 +60,46 @@ public class Traitement {
 		}
 		return nB_images;
 	};
-	
+
+public ArrayList<Multimedia> getSimilarImagesByCaracterstics(Multimedia image_input, int poid_texture, int poid_couleur){
+		ArrayList<Multimedia> SimilarImages = new ArrayList<Multimedia>();
+		int poidB = poid_texture;
+		int poidA = poid_couleur;
+		for (Multimedia image: images_all) {
+			double battachariaDistanceRed = getBattachariaDistance(image_input.getHistogramme().getRed_histogramme(),image.getHistogramme().getRed_histogramme());
+			double battachariaDistanceGreen = getBattachariaDistance(image_input.getHistogramme().getGreen_histogramme(),image.getHistogramme().getGreen_histogramme());
+			double battachariaDistanceBlue = getBattachariaDistance(image_input.getHistogramme().getBlue_histogramme(),image.getHistogramme().getBlue_histogramme());
+
+			double battachariaDistance = ((battachariaDistanceRed + battachariaDistanceGreen+ battachariaDistanceBlue )/3)*1000;
+			int battachariaDistanceInt =(int) Math.round(battachariaDistance);
+
+			// Différence entre le nombre de pixel de contours
+
+			double nbCntrDist = Math.abs(image.getMoynormegradiant() - image_input.getMoynormegradiant())*100;
+
+			// Définition de notre moyenne pondérée
+
+			double moyPonderee = (poidA*battachariaDistanceInt + poidB*nbCntrDist)/( poidA + poidB);
+
+			int moyPondereeInt = (int) Math.round(moyPonderee);
+
+
+			image.setDistance(moyPondereeInt);
+
+			SimilarImages.add(image);
+		}
+		// Triez SimilarImages en fonction de la distance.
+		Collections.sort(SimilarImages, new Comparator<Multimedia>() {
+			@Override
+			public int compare(Multimedia m1, Multimedia m2) {
+				// Triez par ordre croissant de distance.
+				return Integer.compare(m1.getDistance(), m2.getDistance());
+			}
+		});
+
+		return SimilarImages ;
+	}
+	/*
 	public ArrayList<Multimedia> getSimilarImagesByCaracterstics(Multimedia image_input){
 		ArrayList<Multimedia> SimilarImages = new ArrayList<Multimedia>();
 		for (Multimedia image: images_all) {
@@ -74,7 +113,7 @@ public class Traitement {
 			image.setDistance(battachariaDistanceInt);
 			
 			SimilarImages.add(image);
-		}
+		}*/
         // Triez SimilarImages en fonction de la distance.
         Collections.sort(SimilarImages, new Comparator<Multimedia>() {
             @Override
