@@ -117,35 +117,59 @@ public class Traitement {
 		
 		return pourcentageBleu ;
 	}
-	
-
-	
-	
-	public ArrayList<Multimedia> getSimilarImagesByCaracterstics(Multimedia image_input){
+		public ArrayList<Multimedia> getSimilarImagesByCaracterstics(Multimedia image_input, int poid_texture, int poid_couleur, boolean n ){
 		ArrayList<Multimedia> SimilarImages = new ArrayList<Multimedia>();
+		int poidB = poid_texture;
+		int poidA = poid_couleur;
+		int calculatedDistanceInt = 0;
 		for (Multimedia image: images_all) {
-			double battachariaDistanceRed = getBattachariaDistance(image_input.getHistogramme().getRed_histogramme(),image.getHistogramme().getRed_histogramme());
-			double battachariaDistanceGreen = getBattachariaDistance(image_input.getHistogramme().getGreen_histogramme(),image.getHistogramme().getGreen_histogramme());
-			double battachariaDistanceBlue = getBattachariaDistance(image_input.getHistogramme().getBlue_histogramme(),image.getHistogramme().getBlue_histogramme());
-			
-			double battachariaDistance = ((battachariaDistanceRed + battachariaDistanceGreen+ battachariaDistanceBlue )/3)*1000;
-			int battachariaDistanceInt =(int) Math.round(battachariaDistance);
-		
-			image.setDistance(battachariaDistanceInt);
-			
+			if (n) {
+				double EucDistanceRed = getEucledienneDistance(image_input.getHistogramme().getRed_histogramme(),image.getHistogramme().getRed_histogramme());
+				double EucDistanceGreen = getEucledienneDistance(image_input.getHistogramme().getGreen_histogramme(),image.getHistogramme().getGreen_histogramme());
+				double EucDistanceBlue = getEucledienneDistance(image_input.getHistogramme().getBlue_histogramme(),image.getHistogramme().getBlue_histogramme());
+
+				double EucDistance = ((EucDistanceRed + EucDistanceGreen+ EucDistanceBlue )/3);
+				calculatedDistanceInt =(int) Math.round(EucDistance);
+			} else {
+				double battachariaDistanceRed = getBattachariaDistance(image_input.getHistogramme().getRed_histogramme(),image.getHistogramme().getRed_histogramme());
+				double battachariaDistanceGreen = getBattachariaDistance(image_input.getHistogramme().getGreen_histogramme(),image.getHistogramme().getGreen_histogramme());
+				double battachariaDistanceBlue = getBattachariaDistance(image_input.getHistogramme().getBlue_histogramme(),image.getHistogramme().getBlue_histogramme());
+
+				double battachariaDistance = ((battachariaDistanceRed + battachariaDistanceGreen+ battachariaDistanceBlue )/3)*1000;
+				calculatedDistanceInt =(int) Math.round(battachariaDistance);
+			}
+
+
+			// Différence entre le nombre de pixel de contours
+
+			double nbCntrDist = Math.abs(image.getMoynormegradiant() - image_input.getMoynormegradiant())*100;
+
+			// Définition de notre moyenne pondérée
+
+			double moyPonderee = (poidA* calculatedDistanceInt + poidB*nbCntrDist)/( poidA + poidB);
+
+			int moyPondereeInt = (int) Math.round(moyPonderee);
+
+			image.setDistance(moyPondereeInt);
+
 			SimilarImages.add(image);
 		}
-        // Triez SimilarImages en fonction de la distance.
-        Collections.sort(SimilarImages, new Comparator<Multimedia>() {
-            @Override
-            public int compare(Multimedia m1, Multimedia m2) {
-                // Triez par ordre croissant de distance.
-                return Integer.compare(m1.getDistance(), m2.getDistance());
-            }
-        });
+		// Triez SimilarImages en fonction de la distance.
+		Collections.sort(SimilarImages, new Comparator<Multimedia>() {
+			@Override
+			public int compare(Multimedia m1, Multimedia m2) {
+				// Triez par ordre croissant de distance.
+				return Integer.compare(m1.getDistance(), m2.getDistance());
+			}
+		});
 
 		return SimilarImages ;
 	}
+	
+
+	
+	
+
 	
 	public double getBattachariaDistance(int[] histogramme_1, int[] histogramme_2 ) {
 //		double BhattacharyyaCoefficient=0.0;
@@ -184,6 +208,20 @@ public class Traitement {
         //System.out.println("Distance de Bhattacharyya : " + bcDistance);
 		
         return bcDistance;		
+	};
+		public double getEucledienneDistance(int[] histogramme_1, int[] histogramme_2 ) {
+		double EucDistance = 0;
+		int size = 256;
+
+		for (int i = 0; i < size; i++) {
+			int diff = histogramme_1[i]-histogramme_2[i];
+			EucDistance += diff*diff;
+		}
+		EucDistance = Math.sqrt(EucDistance);
+
+		EucDistance = Math.round(EucDistance);
+
+		return EucDistance;
 	};
     public static BigDecimal calculateBhattacharyyaCoefficient(BigDecimal[] p1, BigDecimal[] p2) {
     	BigDecimal bcCoeff = new BigDecimal(0);
