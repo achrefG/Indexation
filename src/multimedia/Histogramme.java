@@ -24,8 +24,8 @@ public class Histogramme {
 	public Histogramme(int[] hr, int[] hb, int[] hg) {
 		super();
 		this.red_histogramme = hr;
-		this.green_histogramme = hb;
-		this.blue_histogramme = hg;
+		this.blue_histogramme = hb;
+		this.green_histogramme = hg;
 	}
 	
 	/**

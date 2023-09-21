@@ -5,9 +5,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Array;
 import java.sql.CallableStatement;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -79,8 +82,131 @@ public class ConnexionDB {
             }
         }
     }
+    public boolean isSimilarBySignature(int id_image1, int id_image2,int color,int texture, int shape, int location) throws SQLException {
+    	boolean isSimilar = false ;
+    	String request = "declare\n"
+    			+ "  i ordsys.ordimage;\n"
+    			+ "  ctx RAW(400) := NULL;\n"
+    			+ "  ligne multimedia%ROWTYPE;\n"
+    			+ "  cursor mm is\n"
+    			+ "    select * from multimedia\n"
+    			+ "    for update;\n"
+    			+ "  sig1 ordsys.ordimageSignature;\n"
+    			+ "  sig2 ordsys.ordimageSignature;\n"
+    			+ "  sim integer;\n"
+    			+ "  dist float;\n"
+    			+ "  i NUMBER;\n"
+    			+ "  image_name VARCHAR2(100);\n"
+    			+ "	 message VARCHAR2(100);\n"
+    			+ "begin \n"
+    			
+    			+ "    select signature into sig1\n"
+    			+ "    from multimedia\n"
+    			+ "    where ID = '"+id_image1+"' ;\n"
+    		
+    			+ "    select signature into sig2\n"
+    			+ "    from multimedia\n"
+    			+ "    where ID = '"+id_image2+"' ;\n"
+    			+ "    \n"
+    		
+    			+ "    sim := ordsys.ordimageSignature.isSimilar(sig1, sig2, 'color = "+color+", texture = "+texture+", shape ="+shape+", location = "+location+"', 10); \n"
+    			+ "    -- Afficher les resultats : \n"
+    			+ "    if \n"
+    			+ "        -- Si similaires  : \n"
+    			+ "\n"
+    			+ "        sim = 1 then message:='true';\n"
+    			+ "    else \n"
+    			+ "       -- Si non similaires  : \n"
+    			+ "        message:='false';\n"
+    			+ "   end if;\n"
+    			+ "		?:=message;\n"
+    			+ "end;";
+
+  
+            CallableStatement callableStatement = connexion.prepareCall(request);
+               
+            callableStatement.registerOutParameter(1, java.sql.Types.VARCHAR);
+
+                // Exécution de la requête
+            callableStatement.execute();
+
+                // Récupération du résultat de la requête
+            String message = callableStatement.getString(1);
+            if(message.equals("true")) {
+            	isSimilar = true ;
+            };
+            callableStatement.close();
+            return isSimilar ;
+     
+    }
     
-    
+    public ArrayList<Multimedia> getSimilarBySignature(int id_image,int color,int texture, int shape, int location)  throws SQLException{
+    	
+    	
+    	String query = "declare\n"
+    			+ "  i ordsys.ordimage;\n"
+    			+ "  ctx RAW(400) := NULL;\n"
+    			+ "  ligne multimedia%ROWTYPE;\n"
+    			+ "  cursor mm is\n"
+    			+ "    select * from multimedia\n"
+    			+ "    for update;\n"
+    			+ "  sig1 ordsys.ordimageSignature;\n"
+    			+ "  sig2 ordsys.ordimageSignature;\n"
+    			+ "  sim integer;\n"
+    			+ "  dist float;\n"
+    			+ "  i NUMBER;\n"
+    			+ "	 message VARCHAR2(10000);\n"
+    			+ "  image_name VARCHAR2(100);\n"
+    			+ "begin \n"
+    			+ "	 message := '';\n"
+    			+ "    -- marquer le numero de l'ID correspondant a l'image qu'on veut tester sur la console dans cette exemple ID=1 \n"
+    			+ "    select signature into sig1\n"
+    			+ "    from multimedia\n"
+    			+ "    where ID = '"+id_image+"' ;\n"
+    			+ "\n"
+    			+ "  FOR image_number IN 1..500 LOOP\n"
+    			+ "        -- va parcourir tout les autres ID pour récupérer leur signature et comparé avec celle donnée en entrée \n"
+    			+ "           select signature into sig2\n"
+    			+ "            from multimedia\n"
+    			+ "            where ID = image_number ;\n"
+    			+ "             -- Fait la similarité entre deux signatures de deux images différentes \n"
+    			+ "             -- rajouter la possibilité de faire les critéres sur la console ! \n"
+    			+ "          -- Afficher les resultats : \n"
+    			+ "              dist := ordsys.ordimageSignature.evaluateScore(sig1, sig2, 'color = "+color+", texture = "+texture+", shape ="+shape+", location = "+location+"');\n"
+    			+ "				message := message || TO_CHAR(image_number) || ',' || TO_CHAR(dist) || ';' ; \n"
+    			+ "  END LOOP;\n"
+    			+ "		?:=message;\n"
+    			+ "end;";
+    	  
+        CallableStatement callableStatement = connexion.prepareCall(query);
+           
+        callableStatement.registerOutParameter(1, java.sql.Types.VARCHAR);
+
+            // Exécution de la requête
+        callableStatement.execute();
+
+            // Récupération du résultat de la requête
+        String m = callableStatement.getString(1);
+        String[] message = m.split(";");
+        ArrayList<Multimedia> images_similaire = new ArrayList<Multimedia>();
+        for(int i = 0 ; i<message.length ; i++) {
+        	String[] StringIdDistance= message[i].split(",") ; 
+        	int id = Integer.parseInt(StringIdDistance[0]);
+        	int distance = Integer.parseInt(StringIdDistance[1]);
+        	Multimedia multimedia = new Multimedia(id, distance);
+        	images_similaire.add(multimedia);
+        }
+        
+        Collections.sort(images_similaire, new Comparator<Multimedia>() {
+            @Override
+            public int compare(Multimedia m1, Multimedia m2) {
+                // Triez par ordre croissant de distance.
+                return Integer.compare(m1.getDistance(), m2.getDistance());
+            }
+        });
+        callableStatement.close();
+    	return images_similaire;
+    }
     
 	public ArrayList<Multimedia> createMultimedia() throws SQLException {
 		String request = "select ID,MOYNORMEGRADIENT,HR,HB,HG,ISNB from multimedia Order by ID";

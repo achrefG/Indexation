@@ -24,6 +24,14 @@ public class Multimedia {
 		this.isNb = isNb;
 		this.distance = 0;
 	}
+	public Multimedia(int id, int distance) {
+		super();
+		this.id = id;
+		this.moynormegradiant = 0;
+		this.histogramme = null;
+		this.isNb = false;
+		this.distance = distance;
+	}
 	/**
 	 * @return the id
 	 */

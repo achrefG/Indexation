@@ -50,7 +50,22 @@ public class Traitement {
 	public void setImages_all(ArrayList<Multimedia> images_all) {
 		this.images_all = images_all;
 	}
-
+	public ArrayList<Multimedia> getByColeur(int tr,int tv){
+		ArrayList<Multimedia> images = new ArrayList<Multimedia>() ;
+		for (Multimedia image: images_all) {
+			 double tauxRouge = tauxRouge(image.getHistogramme()) ;
+			 double tauxVert = tauxVert(image.getHistogramme()) ;
+			 double tauxBlue = tauxBlue(image.getHistogramme()) ;
+			 
+			 
+			if(tauxRouge>tr && tauxVert < tv) {
+				System.out.println("img id:" +image.getID()+" +rouge:" + tauxRouge +" vert:"+tauxVert+" blue:"+tauxBlue);
+				images.add(image);
+			}
+		}
+		return images;
+	}
+	
 	public ArrayList<Multimedia> getNbImages() {
 		ArrayList<Multimedia> nB_images = new ArrayList<Multimedia>() ;
 		for (Multimedia image: images_all) {
@@ -60,6 +75,51 @@ public class Traitement {
 		}
 		return nB_images;
 	};
+	public int SommeCanal(int[] histogramme) {
+		int sommeCanal =0 ;
+		for(int i = 0 ; i<histogramme.length ; i++) {
+			sommeCanal += histogramme[i]*i;
+		}
+		return sommeCanal ;
+	}
+	
+	public double tauxRouge(Histogramme histogramme) {
+		int tauxRouge = SommeCanal(histogramme.getRed_histogramme());
+		int tauxVert = SommeCanal(histogramme.getGreen_histogramme());
+		int tauxBleu = SommeCanal(histogramme.getBlue_histogramme());
+		int total_sum = tauxRouge + tauxVert + tauxBleu; 
+		
+		double pourcentageRouge = ((double) tauxRouge / total_sum) * 100;
+	
+		
+		return pourcentageRouge ;
+	}
+	public double tauxVert(Histogramme histogramme) {
+		int tauxRouge = SommeCanal(histogramme.getRed_histogramme());
+		int tauxVert = SommeCanal(histogramme.getGreen_histogramme());
+		int tauxBleu = SommeCanal(histogramme.getBlue_histogramme());
+		
+		int total_sum = tauxRouge + tauxVert + tauxBleu; 
+		
+		double pourcentageVert = ((double) tauxVert / total_sum) * 100;
+	
+		
+		return pourcentageVert ;
+	}
+	public double tauxBlue(Histogramme histogramme) {
+		int tauxRouge = SommeCanal(histogramme.getRed_histogramme());
+		int tauxVert = SommeCanal(histogramme.getGreen_histogramme());
+		int tauxBleu = SommeCanal(histogramme.getBlue_histogramme());
+		int total_sum = tauxRouge + tauxVert + tauxBleu; 
+		
+		double pourcentageBleu = ((double) tauxBleu / total_sum) * 100;
+	
+		
+		return pourcentageBleu ;
+	}
+	
+
+	
 	
 	public ArrayList<Multimedia> getSimilarImagesByCaracterstics(Multimedia image_input){
 		ArrayList<Multimedia> SimilarImages = new ArrayList<Multimedia>();

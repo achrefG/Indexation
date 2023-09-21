@@ -20,16 +20,45 @@ public class Main {
         ConnexionDB connexionDB = new ConnexionDB();
     	ArrayList<Multimedia> all_images=  connexionDB.createMultimedia();
     	Traitement traitement = new Traitement(all_images);
+    	
+    	ArrayList<Multimedia> peuVertBcpRouge= traitement.getByColeur(45,25 );
+        for (Multimedia multimedia : peuVertBcpRouge) {
+ 			System.out.println("Image peuVertBcpRouge "+multimedia.getID()+" distance:"+multimedia.getDistance());
+ 		}
+    	/*
+        for (Multimedia multimedia : peuVertBcpRouge) {
+ 			System.out.println("Image peuVertBcpRouge "+multimedia.getID()+" distance:"+multimedia.getDistance());
+ 		}
+    	
     	ArrayList<Multimedia> nbImages =  traitement.getNbImages();
-        ArrayList<Multimedia> similarImages= traitement.getSimilarImagesByCaracterstics(all_images.get(10));
         
-        for (int i = 0; i < 10; i++) {
-			System.out.println("Image similaire a l'image 11 :"+similarImages.get(i).getID()+" | distance :"+similarImages.get(i).getDistance());
+    	ArrayList<Multimedia> similarImagesCaracterstics= traitement.getSimilarImagesByCaracterstics(all_images.get(10));
+        
+    	
+    	
+    	ArrayList<Multimedia> similarImagesBySignature= connexionDB.getSimilarBySignature(11,1,0,0,0);
+        boolean isSimilar  = connexionDB.isSimilarBySignature(1,60,1,0,0,0);
+        
+        
+        System.out.println("############ Similaire By Signature ############\n\n");
+        
+        
+        
+        
+        for (Multimedia multimedia : similarImagesCaracterstics) {
+			System.out.println("Image similaire a l'image 11 :"+multimedia.getID()+" distance:"+multimedia.getDistance());
+		}
+        System.out.println("############ Similaire By Caractéristique ############\n\n");
+        for (Multimedia multimedia : similarImagesBySignature) {
+        	System.out.println("Image similaire a l'image 11 :"+multimedia.getID()+" distance:"+multimedia.getDistance());
 		}
         
         
-        for (int i = 0; i < nbImages.size(); i++) {
-			System.out.println("Image noir est blancs"+similarImages.get(i).getID()+" | distance :"+similarImages.get(i).getDistance());
-		}
+        
+        
+        System.out.println("l'image 10 est 20 sont similaire ? : "+isSimilar);
+       
+        */
+
     }
 }
