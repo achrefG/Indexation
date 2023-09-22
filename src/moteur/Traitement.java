@@ -59,13 +59,42 @@ public class Traitement {
 			 
 			 
 			if(tauxRouge>tr && tauxVert < tv) {
-				System.out.println("img id:" +image.getID()+" +rouge:" + tauxRouge +" vert:"+tauxVert+" blue:"+tauxBlue);
+				//System.out.println("img id:" +image.getID()+" +rouge:" + tauxRouge +" vert:"+tauxVert+" blue:"+tauxBlue);
 				images.add(image);
 			}
 		}
 		return images;
 	}
-	
+	public ArrayList<Multimedia> getDimension(){
+		ArrayList<Multimedia> images = new ArrayList<Multimedia>() ;
+		images.add(images_all.get(0));
+		images.add(images_all.get(1));
+		double dimMax = 0;
+
+		double dimMin= 10000000;
+		for (Multimedia image: images_all) {
+			double dim = nbPixel(image.getHistogramme().getBlue_histogramme());
+			if (dim > dimMax){
+				images.set(0, image);
+				dimMax = dim;
+
+			}
+			if (dim<dimMin) {
+				images.set(1, image);
+				dimMin = dim;
+			}
+		}
+
+
+		return images;
+	}
+	public double nbPixel(int[] histogramme) {
+		int sommeCanal =0 ;
+		for(int i = 0 ; i<histogramme.length ; i++) {
+			sommeCanal += histogramme[i];
+		}
+		return sommeCanal;
+	}
 	public ArrayList<Multimedia> getNbImages() {
 		ArrayList<Multimedia> nB_images = new ArrayList<Multimedia>() ;
 		for (Multimedia image: images_all) {
